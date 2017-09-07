@@ -4,6 +4,7 @@
 
 # IntelliJ project files
 .idea
+*.pyc
 *.iml
 out
 gen### Python template

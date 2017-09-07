@@ -1,0 +1,41 @@
+{#<div style="float: right;">#}
+{#    <div class="pagination">#}
+{#        <em class="step-links">#}
+{#            {% if query_list.has_previous %}#}
+{#                <a href="?page=#}
+{#                        {{ query_list.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">previous</a>#}
+{#            {% endif %}#}
+{##}
+{#            &nbsp;<em class="current">#}
+{#            Page {{ query_list.number }} of {{ query_list.paginator.num_pages }}.#}
+{#        </em>&nbsp;#}
+{##}
+{#            {% if query_list.has_next %}#}
+{#                <a href="?page=#}
+{#                        {{ query_list.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">next</a>#}
+{#            {% endif %}#}
+{#        </em>#}
+{#    </div>#}
+{#</div>#}
+
+{% if query_list.has_other_pages %}
+    <ul class="pagination">
+        {% if query_list.has_previous %}
+            <li><a href="?page={{ query_list.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in query_list.paginator.page_range %}
+            {% if query_list.number == i %}
+                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+            {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if users.has_next %}
+            <li><a href="?page={{ users.next_page_number }}">&raquo;</a></li>
+        {% else %}
+            <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+    </ul>
+{% endif %}
