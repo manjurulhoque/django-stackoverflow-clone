@@ -179,13 +179,15 @@ def upvote(request):
         v.upvote = 0
         v.save()
     else:
-        v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
-        if v.upvote == 0:
-            v.upvote = 1
+        try:
+            v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+            if v.upvote == 0:
+                v.upvote = 1
+                v.save()
+                return JsonResponse({'status': 'ok'})
+        except:
+            v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'], downvote=request.POST['downvote'])
             v.save()
-            return JsonResponse({'status': 'ok'})
-        v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'], downvote=request.POST['downvote'])
-        v.save()
     return JsonResponse({'status': 'ok'})
 
 
