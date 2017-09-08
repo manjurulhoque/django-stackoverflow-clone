@@ -1,8 +1,12 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 from django.utils.text import slugify
+
 # Create your models here.
+
+User = settings.AUTH_USER_MODEL
 
 
 class Category(models.Model):
@@ -53,3 +57,25 @@ class Question(models.Model):
         if not self.slug:
             self.slug = self._get_unique_slug()
         super(Question, self).save()
+
+
+class Vote(models.Model):
+    user = models.ForeignKey(User)
+    upvote = models.BooleanField(default=False)
+    downvote = models.BooleanField(default=False)
+    question = models.ForeignKey(Question)
+    value = models.IntegerField()
+
+
+class Answer(models.Model):
+    user = models.ForeignKey(User)
+    question = models.ForeignKey(Question)
+    ans = models.TextField(verbose_name="answer")
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.question.question
+
+    class Meta:
+        ordering = ['-created']
