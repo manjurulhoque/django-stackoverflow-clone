@@ -66,6 +66,11 @@ class Vote(models.Model):
     question = models.ForeignKey(Question)
 
 
+class QuestionTotal(models.Model):
+    question = models.ForeignKey(Question)
+    total = models.CharField(max_length=20)
+
+
 class Answer(models.Model):
     user = models.ForeignKey(User)
     question = models.ForeignKey(Question)

@@ -29,8 +29,7 @@ def login_view(request):  # users will login with their Email & Password
         context = {"form": form,
                    "title": title
                    }
-
-        return render(request, "accounts/form.html", context)
+        return render(request, "accounts/login.html", context)
 
 
 def register_view(request):  # Creates a New Account & login New users

@@ -15,9 +15,11 @@
                 {% csrf_token %}
                 <input type="hidden" class="hidden" value="{{ question.id }}"/>
                 <div id="topic" class="upvote">
-                    <a class="upvote up {% if upvote %}upvoted{% endif %}" title="This is good stuff. Vote it up! (Click again to undo)"></a>
+                    <a class="upvote up {% if upvote %}upvoted{% endif %}"
+                       title="This is good stuff. Vote it up! (Click again to undo)"></a>
                     <span class="count" id="count" name="vote">{{ vote_count }}</span>
-                    <a class="downvote {% if downvote %}downvoted{% endif %}" title="This is not useful. Vote it down. (Click again to undo)"></a>
+                    <a class="downvote {% if downvote %}downvoted{% endif %}"
+                       title="This is not useful. Vote it down. (Click again to undo)"></a>
                     <a class="star" title="Mark as favorite. (Click again to undo)"></a>
                 </div>
             </form>
@@ -80,7 +82,7 @@
 
                     <div class="thumbnail">
 
-                        <img class="img-responsive user-photo" src="#">
+                        <img class="img-responsive user-photo" src="{{ answer.user.picture.url }}">
                         {#                        <img class="img-responsive user-photo" src="{{ answer.user.picture.url }}">#}
 
                     </div><!-- /thumbnail -->

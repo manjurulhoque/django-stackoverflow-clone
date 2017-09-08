@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 
 from questions.forms import QuestionForm, AnswerForm
-from .models import Category, Question, Answer, Vote
+from .models import Category, Question, Answer, Vote, QuestionTotal
 
 
 # Create your views here.
@@ -36,6 +36,7 @@ def index(request):
     return render(request, "questions/index.html", context)
 
 
+@login_required(login_url="/login")
 def ask_question(request):
     form = QuestionForm(request.POST or None)
     if form.is_valid():
@@ -57,9 +58,13 @@ def question_detail(request, slug=None):
     upvote = False
     downvote = False
     question = get_object_or_404(Question, slug=slug)
-    votes = Vote.objects.filter(question_id=question.id)
-    vote_count = votes.filter(Q(upvote__exact=1) | Q(downvote__exact=1)).count()
+    # votes = Vote.objects.filter(question_id=question.id)
+    # vote_count = votes.filter(Q(upvote__exact=1) | Q(downvote__exact=1)).count()
     # print(vote_count)
+    try:
+        vote_count = QuestionTotal.objects.get(question_id=question.id).total
+    except:
+        vote_count = 0
     answers_list = Answer.objects.filter(question=question)
     context = {"question": question,
                "answers_list": answers_list,
@@ -169,6 +174,27 @@ def answer_delete(request, slug=None, pk=None):
             return redirect(question.get_absolute_url())
 
 
+# @login_required()
+# @csrf_exempt
+# def upvote(request):
+#     is_upvoted = request.POST['is_upvoted']
+#     # print(type(is_upvoted))
+#     if is_upvoted == "1":
+#         v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+#         v.upvote = 0
+#         v.save()
+#     else:
+#         try:
+#             v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+#             if v.upvote == 0:
+#                 v.upvote = 1
+#                 v.save()
+#                 return JsonResponse({'status': 'ok'})
+#         except:
+#             v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'], downvote=request.POST['downvote'])
+#             v.save()
+#     return JsonResponse({'status': 'ok'})
+
 @login_required()
 @csrf_exempt
 def upvote(request):
@@ -178,16 +204,30 @@ def upvote(request):
         v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
         v.upvote = 0
         v.save()
+        t = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+        t.total = str(int(t.total) - 1)
+        t.save()
     else:
         try:
             v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
             if v.upvote == 0:
                 v.upvote = 1
                 v.save()
+                t = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+                t.total = str(int(t.total) + 1)
+                t.save()
                 return JsonResponse({'status': 'ok'})
         except:
-            v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'], downvote=request.POST['downvote'])
+            v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'],
+                     downvote=request.POST['downvote'])
             v.save()
+            try:
+                q = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+                q.total = str(int(q.total) + 1)
+                q.save()
+            except:
+                t = QuestionTotal(question_id=request.POST['question_id'], total="1")
+                t.save()
     return JsonResponse({'status': 'ok'})
 
 

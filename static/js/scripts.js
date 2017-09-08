@@ -22,11 +22,19 @@ $(document).ready(function () {
 
                 if (data.status == 'ok') {
                     // alert(data);
-                    // window.location.reload();
+                    window.location.reload();
                 } else {
                     alert('error');
                 }
             }
         });
     });
+
+    $('.downvote').on('click', function (e) {
+        e.preventDefault();
+
+        console.log('Clicked downvote');
+    });
+
+    document.getElementById('id_password').type = 'password';
 });

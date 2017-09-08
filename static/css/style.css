@@ -1,3 +1,7 @@
 ﻿.navbar {
     border-radius: 0;
 }
+
+#success_message {
+    display: none;
+}
