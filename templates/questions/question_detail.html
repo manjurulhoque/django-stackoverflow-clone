@@ -9,18 +9,15 @@
     {#        <span class="count">0</span>#}
     {#        <a class="downvote" data-value="-1" id="value"></a>#}
     {#    </div>#}
-    {% if user_authenticated %}
-        True
-    {% endif %}
     <div class="row">
         <div class="col-md-2">
             <form action="{% url 'questions:upvote' %}" method="post">
                 {% csrf_token %}
-                <input type="hidden" class="hidden" value="{{ request.user.id }}"/>
+                <input type="hidden" class="hidden" value="{{ question.id }}"/>
                 <div id="topic" class="upvote">
-                    <a class="upvote up" title="This is good stuff. Vote it up! (Click again to undo)"></a>
-                    <span class="count" id="count" name="vote">{{ question.vote_set.count }}</span>
-                    <a class="downvote" title="This is not useful. Vote it down. (Click again to undo)"></a>
+                    <a class="upvote up {% if upvote %}upvoted{% endif %}" title="This is good stuff. Vote it up! (Click again to undo)"></a>
+                    <span class="count" id="count" name="vote">{{ vote_count }}</span>
+                    <a class="downvote {% if downvote %}downvoted{% endif %}" title="This is not useful. Vote it down. (Click again to undo)"></a>
                     <a class="star" title="Mark as favorite. (Click again to undo)"></a>
                 </div>
             </form>

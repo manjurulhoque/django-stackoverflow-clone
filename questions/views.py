@@ -52,22 +52,21 @@ def ask_question(request):
 
 
 def question_detail(request, slug=None):
-    global user_authenticated
-    global this_user
-    this_user = False
+    global upvote, downvote, vote_count
+    same_user = False
+    upvote = False
+    downvote = False
     question = get_object_or_404(Question, slug=slug)
-    vote_count = Vote.objects.filter(question_id=question.id).count()
-    print(vote_count)
+    votes = Vote.objects.filter(question_id=question.id)
+    vote_count = votes.filter(Q(upvote__exact=1) | Q(downvote__exact=1)).count()
+    # print(vote_count)
     answers_list = Answer.objects.filter(question=question)
-    if request.user.is_anonymous:
-        user_authenticated = False
-    else:
-        user_authenticated = True
     context = {"question": question,
                "answers_list": answers_list,
-               "user_authenticated": user_authenticated,
                "vote_count": vote_count,
-               "this_user": this_user
+               "same_user": same_user,
+               "upvote": upvote,
+               "downvote": downvote
                }
     if request.user.is_authenticated:
         form = AnswerForm(request.POST or None)
@@ -78,19 +77,27 @@ def question_detail(request, slug=None):
             answer.save()
             # messages.success(request, 'Answer was Posted.')
             form = AnswerForm()
-            v = Vote.objects.filter(user_id=request.user.id)
+        try:
+            v = Vote.objects.get(question_id=question.id, user_id=request.user.id)
             if v:
-                user_authenticated = True
-                this_user = True
+                same_user = True
             else:
-                user_authenticated = False
-                this_user = False
+                same_user = False
+            if v.upvote == 1 and v.downvote == 0:
+                upvote = True
+                downvote = False
+            elif v.upvote == 0 and v.downvote == 1:
+                upvote = False
+                downvote = True
+        except:
+            same_user = False
         context = {"question": question,
                    "form": form,
                    "answers_list": answers_list,
-                   "user_authenticated": user_authenticated,
                    "vote_count": vote_count,
-                   "this_user": this_user
+                   "same_user": same_user,
+                   "upvote": upvote,
+                   "downvote": downvote
                    }
     return render(request, "questions/question_detail.html", context)
 
@@ -165,7 +172,20 @@ def answer_delete(request, slug=None, pk=None):
 @login_required()
 @csrf_exempt
 def upvote(request):
-    print(request.POST['value'])
+    is_upvoted = request.POST['is_upvoted']
+    # print(type(is_upvoted))
+    if is_upvoted == "1":
+        v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+        v.upvote = 0
+        v.save()
+    else:
+        v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+        if v.upvote == 0:
+            v.upvote = 1
+            v.save()
+            return JsonResponse({'status': 'ok'})
+        v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'], downvote=request.POST['downvote'])
+        v.save()
     return JsonResponse({'status': 'ok'})
 
 

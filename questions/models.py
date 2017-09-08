@@ -64,7 +64,6 @@ class Vote(models.Model):
     upvote = models.BooleanField(default=False)
     downvote = models.BooleanField(default=False)
     question = models.ForeignKey(Question)
-    value = models.IntegerField()
 
 
 class Answer(models.Model):
