@@ -62,6 +62,7 @@ class Question(models.Model):
 class Vote(models.Model):
     user = models.ForeignKey(User)
     upvote = models.BooleanField(default=False)
+    favourite = models.BooleanField(default=False)
     downvote = models.BooleanField(default=False)
     question = models.ForeignKey(Question)
 
