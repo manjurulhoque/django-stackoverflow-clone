@@ -62,9 +62,11 @@ def question_detail(request, slug=None):
     # vote_count = votes.filter(Q(upvote__exact=1) | Q(downvote__exact=1)).count()
     # print(vote_count)
     try:
-        vote_count = QuestionTotal.objects.get(question_id=question.id).total
+        q = QuestionTotal.objects.get(question_id=question.id)
+        vote_count = q.total
     except:
         vote_count = 0
+    print(vote_count)
     answers_list = Answer.objects.filter(question=question)
     context = {"question": question,
                "answers_list": answers_list,
@@ -232,5 +234,35 @@ def upvote(request):
 
 
 @login_required()
+@csrf_exempt
 def downvote(request):
-    pass
+    is_downvoted = request.POST['is_downvoted']
+    if is_downvoted == "1":
+        v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+        v.downvote = 0
+        v.save()
+        t = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+        t.total = str(int(t.total) + 1)
+        t.save()
+    else:
+        try:
+            v = Vote.objects.get(user_id=request.user.id, question_id=request.POST['question_id'])
+            if v.downvote == 0:
+                v.downvote = 1
+                v.save()
+                t = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+                t.total = str(int(t.total) - 1)
+                t.save()
+                return JsonResponse({'status': 'ok'})
+        except:
+            v = Vote(user_id=request.user.id, question_id=request.POST['question_id'], upvote=request.POST['upvote'],
+                     downvote=request.POST['downvote'])
+            v.save()
+            try:
+                q = QuestionTotal.objects.get(question_id=request.POST['question_id'])
+                q.total = str(int(q.total) - 1)
+                q.save()
+            except:
+                t = QuestionTotal(question_id=request.POST['question_id'], total="1")
+                t.save()
+    return JsonResponse({'status': 'ok'})

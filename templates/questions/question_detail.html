@@ -1,7 +1,18 @@
 {% extends "app.html" %}
 {% load crispy_forms_tags %}
 {% block title %} Question Details | {{ block.super }}{% endblock title %}
+{% load staticfiles %}
+{% block scripts %}
 
+    <script src="{% static 'js/jquery-2.2.3.js' %}"></script>
+    <script type="text/javascript">
+        total = {{ vote_count|safe }};
+        widget.init(total);
+
+        $('#topic').upvote({count: total});
+    </script>
+
+{% endblock %}
 {% block content %}
 
     {#    <div class="upvote topic">#}
@@ -9,6 +20,7 @@
     {#        <span class="count">0</span>#}
     {#        <a class="downvote" data-value="-1" id="value"></a>#}
     {#    </div>#}
+    {{ vote_count }}
     <div class="row">
         <div class="col-md-2">
             <form action="{% url 'questions:upvote' %}" method="post">

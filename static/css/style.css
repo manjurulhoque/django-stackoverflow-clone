@@ -5,3 +5,8 @@
 #success_message {
     display: none;
 }
+
+#topic a
+{
+    cursor: pointer;
+}
